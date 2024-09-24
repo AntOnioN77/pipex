@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipex.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: antofern <antofern@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: antofern <antofern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/11 21:12:18 by antofern          #+#    #+#             */
-/*   Updated: 2024/09/21 14:00:15 by antofern         ###   ########.fr       */
+/*   Updated: 2024/09/24 20:41:47 by antofern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 //Retorna un array de strings con los directorios de la variable
 //de entorno PATH
@@ -97,14 +98,7 @@ void secuence_cmds(int amount, t_args *args, t_fds io)
 	}
 }
 */
-
-int	main(int argc, char **argv, char **envp)
-{
-	char *pathname;
-	char **cmdflags;
-
-	cmdflags = ft_split(argv[1], ' ');
-	
+/*
 	pathname = find_path(envp, cmdflags[0]);
 	if (pathname == NULL)
 	{
@@ -112,5 +106,45 @@ int	main(int argc, char **argv, char **envp)
 		return (1);
 	}
 	execve(pathname, cmdflags, envp);
+*/
+
+int	exec_cmd(int argc, char **argv, char **envp)
+{
+	char *pathname;
+	char **cmdflags;
+
+	cmdflags = ft_split(argv[1], ' ');
+	pathname = find_path(envp, cmdflags[0]);
+	if (pathname == NULL)
+	{
+		perror("");// MAL deberia ser zsh: command not found: <comando>
+		return (1);
+	}
+	execve(pathname, cmdflags, envp);
 	return (0);
+}
+
+
+
+int	main(int argc, char **argv, char **envp)
+{
+	int pid;
+	int	i;
+	int pipefd[2];
+	int file_in;
+	int file_out;
+
+	file_out = open(argv[1], O_RDONLY);
+	i = 1;
+	while (argv[++i + 1])
+	{
+		pid = fork();
+		pipe(pipefd);
+		dup2(file_out, pipefd[0]);
+		dup2(pipefd[1], STDIN_FILENO);
+		close(file_out);
+		if (pid == 0)
+			exec_cmd(argc, argv, envp);
+	}
+
 }
