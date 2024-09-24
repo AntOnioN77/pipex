@@ -3,39 +3,74 @@
 /*                                                        :::      ::::::::   */
 /*   pipex.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: antofern <antofern@student.42.fr>          +#+  +:+       +#+        */
+/*   By: antofern <antofern@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/11 21:12:18 by antofern          #+#    #+#             */
-/*   Updated: 2024/09/14 15:17:26 by antofern         ###   ########.fr       */
+/*   Updated: 2024/09/21 14:00:15 by antofern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <pipex.h>
-#include <libft.h>
+#include <errno.h>
+#include "pipex.h"
+#include "libft/headers/libft.h"
+#include <assert.h>
+#include <stdio.h>
+#include <unistd.h>
 
 //Retorna un array de strings con los directorios de la variable
 //de entorno PATH
-get_paths(char *envp,  char *cmd)
+char	**get_paths(char **envp)
 {
-	int i;
-	char **paths;
+	int		i;
+	char	**paths;
 
-	
-
-/*
-	paths = ft_split();
-	while(paths[i] != NULL)
+	i = -1;
+	while(envp[++i] != NULL)
 	{
-		access();
-		i++;
+		if (ft_strncmp(envp[i], "PATH=", 5) == 0)
+		{
+			paths = ft_split(&(envp[i][5]), ':');
+			assert(paths != NULL); //////////////prueba
+			if(paths == NULL)
+				return (NULL);
+			break;
+		}
 	}
-*/
+	//prueba, borrar:
+	if (envp[i] == NULL)
+		write(1, "variable PATH no encontrada\n", 28);
+	//fin prueba
+	return (paths);
 }
 
-//recibe un array de dos strings donde [0] es la clave
-//y [1] su valor. Retorna el valor
-char	get_value(char *key_value)
+//LA funcion llamadora debera mostrar el codigo de errno en caso de que esta funcion retorne null
+char	*find_path(char **envp, char *command)
+{
+	int i;
+	char *pathname;
+	char *tmp;
+	char **paths;
 
+	paths = get_paths(envp);
+	if (paths == NULL)
+		return (NULL);
+	i= -1;
+	while(paths[++i] != NULL)
+	{
+		tmp = ft_strjoin( paths[i] , "/");
+		if(!tmp)
+			return (NULL);
+		pathname = ft_strjoin( tmp , command);
+		free(tmp);
+		if(!pathname)
+			return (NULL);
+		if(access(pathname, X_OK) == 0)
+			return(pathname);
+	}
+	errno = ENOENT;
+	return (NULL);
+}
+/*
 int run_cmd(t_args *args, int narg, t_fds io)
 {
 	char	**cmd_and_flags;
@@ -51,17 +86,31 @@ int run_cmd(t_args *args, int narg, t_fds io)
 void secuence_cmds(int amount, t_args *args, t_fds io)
 {
 	int		i;
-	char	*paths;
+	char	**paths;
 
-	paths = get_paths(args->envp,  cmd_and_flags[0]);
+	paths = get_paths(args->envp, cmd_and_flags[0]);
 	i = 1;
+	actual_pat = select_path();
 	while(i < args.c)
 	{
 		run_cmd(args, io);
 	}
 }
+*/
 
-int	main(void)
+int	main(int argc, char **argv, char **envp)
 {
+	char *pathname;
+	char **cmdflags;
 
+	cmdflags = ft_split(argv[1], ' ');
+	
+	pathname = find_path(envp, cmdflags[0]);
+	if (pathname == NULL)
+	{
+		perror("");
+		return (1);
+	}
+	execve(pathname, cmdflags, envp);
+	return (0);
 }
