@@ -6,7 +6,7 @@
 /*   By: antofern <antofern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/11 21:12:18 by antofern          #+#    #+#             */
-/*   Updated: 2024/09/24 20:41:47 by antofern         ###   ########.fr       */
+/*   Updated: 2024/10/02 16:40:27 by antofern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
+ #include <sys/wait.h>
 
 //Retorna un array de strings con los directorios de la variable
 //de entorno PATH
@@ -26,6 +27,7 @@ char	**get_paths(char **envp)
 	char	**paths;
 
 	i = -1;
+	paths = NULL;
 	while(envp[++i] != NULL)
 	{
 		if (ft_strncmp(envp[i], "PATH=", 5) == 0)
@@ -108,12 +110,12 @@ void secuence_cmds(int amount, t_args *args, t_fds io)
 	execve(pathname, cmdflags, envp);
 */
 
-int	exec_cmd(int argc, char **argv, char **envp)
+int	exec_cmd(int narg, char **argv, char **envp)
 {
 	char *pathname;
 	char **cmdflags;
 
-	cmdflags = ft_split(argv[1], ' ');
+	cmdflags = ft_split(argv[narg], ' ');
 	pathname = find_path(envp, cmdflags[0]);
 	if (pathname == NULL)
 	{
@@ -121,11 +123,11 @@ int	exec_cmd(int argc, char **argv, char **envp)
 		return (1);
 	}
 	execve(pathname, cmdflags, envp);
-	return (0);
+	return (1);
 }
 
 
-
+/*
 int	main(int argc, char **argv, char **envp)
 {
 	int pid;
@@ -135,16 +137,54 @@ int	main(int argc, char **argv, char **envp)
 	int file_out;
 
 	file_out = open(argv[1], O_RDONLY);
+	pipe(pipefd);
+	dup2(file_in, pipefd[0]);
 	i = 1;
 	while (argv[++i + 1])
 	{
 		pid = fork();
 		pipe(pipefd);
-		dup2(file_out, pipefd[0]);
+		dup2(file_in, pipefd[0]);
 		dup2(pipefd[1], STDIN_FILENO);
-		close(file_out);
+		close(file_in);
 		if (pid == 0)
 			exec_cmd(argc, argv, envp);
 	}
 
+}
+*/
+
+int	main(int argc, char **argv, char **envp)
+{
+	int	pipe_fd[2];
+	char buf[356];
+	int	pid;
+	int	fd;
+	int	status;
+	int bytesread;
+
+	fd = open("file1", O_RDONLY);
+	pipe(pipe_fd);
+	
+	close(STDIN_FILENO);
+	dup2(fd, STDIN_FILENO);
+	close(fd);
+
+	close(STDOUT_FILENO);
+	dup2(pipe_fd[1], STDOUT_FILENO);
+
+	pid = fork();
+	if (pid == 0)
+	{
+		close(pipe_fd[0]);
+		exec_cmd(1, argv, envp);
+	}
+	else
+	{
+		waitpid(-1, &status, 0);
+		bytesread = read(pipe_fd[0], buf, 5);
+		buf[bytesread] = '\0';
+		printf("ok: %s ok\n", buf);
+	}
+	return(0);
 }
