@@ -1,0 +1,4 @@
+0- abstraer proceso hijo a una funcion
+0- encadenar segundo proceso
+0- hacer numero variable de pipes
+3- gestionar heredoc

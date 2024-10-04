@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipex.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: antofern <antofern@student.42.fr>          +#+  +:+       +#+        */
+/*   By: antofern <antofern@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/11 21:12:18 by antofern          #+#    #+#             */
-/*   Updated: 2024/10/02 16:40:27 by antofern         ###   ########.fr       */
+/*   Updated: 2024/10/04 10:46:27 by antofern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -170,21 +170,27 @@ int	main(int argc, char **argv, char **envp)
 	dup2(fd, STDIN_FILENO);
 	close(fd);
 
-	close(STDOUT_FILENO);
-	dup2(pipe_fd[1], STDOUT_FILENO);
-
 	pid = fork();
+	printf("%d", pid);
 	if (pid == 0)
 	{
+		printf("Hijo ready!!\n");
+		dup2(pipe_fd[1], STDOUT_FILENO);
 		close(pipe_fd[0]);
+		close(pipe_fd[1]);
 		exec_cmd(1, argv, envp);
 	}
 	else
 	{
-		waitpid(-1, &status, 0);
-		bytesread = read(pipe_fd[0], buf, 5);
-		buf[bytesread] = '\0';
-		printf("ok: %s ok\n", buf);
+		close(pipe_fd[1]);
+		bytesread = 1;
+		while(bytesread > 0)
+		{
+			bytesread = read(pipe_fd[0], buf, 355);
+			printf("bytesread: %d\n", bytesread);
+			buf[bytesread] = '\0';
+			printf("ok: %s ok\n", buf);
+		}
 	}
 	return(0);
 }
