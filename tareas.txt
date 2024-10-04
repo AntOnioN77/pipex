@@ -1,3 +1,5 @@
+0- exec_cmd esta MAL. hay que reservar en el proceso padre para poder liberar memoria aunque execve se ejecute correctamente
+
 0- abstraer proceso hijo a una funcion
 0- encadenar segundo proceso
 0- hacer numero variable de pipes

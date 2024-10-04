@@ -6,7 +6,7 @@
 /*   By: antofern <antofern@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/11 21:12:18 by antofern          #+#    #+#             */
-/*   Updated: 2024/10/04 10:46:27 by antofern         ###   ########.fr       */
+/*   Updated: 2024/10/04 17:39:19 by antofern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,49 +73,17 @@ char	*find_path(char **envp, char *command)
 	errno = ENOENT;
 	return (NULL);
 }
-/*
-int run_cmd(t_args *args, int narg, t_fds io)
-{
-	char	**cmd_and_flags;
-	
-	cmd_and_flags = ft_split(args->v, " ");
-	if (cmd_and_flags == NULL)
-		return(ERROR);
-}
 
-//el struct io contiene como io.in el fd del archivo de entrada
-//y en io.out el fd del archivo de salida, el modo (APPEND o REPLACE)
-//se gestiono prebiamente al llamar a open()
-void secuence_cmds(int amount, t_args *args, t_fds io)
-{
-	int		i;
-	char	**paths;
 
-	paths = get_paths(args->envp, cmd_and_flags[0]);
-	i = 1;
-	actual_pat = select_path();
-	while(i < args.c)
-	{
-		run_cmd(args, io);
-	}
-}
-*/
-/*
-	pathname = find_path(envp, cmdflags[0]);
-	if (pathname == NULL)
-	{
-		perror("");
-		return (1);
-	}
-	execve(pathname, cmdflags, envp);
-*/
-
+// esta MAL. hay que reservar en el proceso padre para poder liberar memoria aunque execve se ejecute correctamente
 int	exec_cmd(int narg, char **argv, char **envp)
 {
 	char *pathname;
 	char **cmdflags;
 
 	cmdflags = ft_split(argv[narg], ' ');
+	if (ft_split == NULL)
+		return (1);
 	pathname = find_path(envp, cmdflags[0]);
 	if (pathname == NULL)
 	{
@@ -126,71 +94,73 @@ int	exec_cmd(int narg, char **argv, char **envp)
 	return (1);
 }
 
-
-/*
-int	main(int argc, char **argv, char **envp)
+void create_child(t_pipe pipe_fd, int narg, char **argv, char **envp)
 {
-	int pid;
-	int	i;
-	int pipefd[2];
-	int file_in;
-	int file_out;
-
-	file_out = open(argv[1], O_RDONLY);
-	pipe(pipefd);
-	dup2(file_in, pipefd[0]);
-	i = 1;
-	while (argv[++i + 1])
-	{
-		pid = fork();
-		pipe(pipefd);
-		dup2(file_in, pipefd[0]);
-		dup2(pipefd[1], STDIN_FILENO);
-		close(file_in);
-		if (pid == 0)
-			exec_cmd(argc, argv, envp);
-	}
-
-}
-*/
-
-int	main(int argc, char **argv, char **envp)
-{
-	int	pipe_fd[2];
-	char buf[356];
 	int	pid;
-	int	fd;
-	int	status;
-	int bytesread;
-
-	fd = open("file1", O_RDONLY);
-	pipe(pipe_fd);
-	
-	close(STDIN_FILENO);
-	dup2(fd, STDIN_FILENO);
-	close(fd);
-
 	pid = fork();
 	printf("%d", pid);
 	if (pid == 0)
 	{
-		printf("Hijo ready!!\n");
+		printf("Hijo narg:%d ready!!\n", narg);
 		dup2(pipe_fd[1], STDOUT_FILENO);
 		close(pipe_fd[0]);
 		close(pipe_fd[1]);
-		exec_cmd(1, argv, envp);
+		exec_cmd(narg, argv, envp);
 	}
-	else
+}
+
+void	free_pipes(t_pipe_set *pipe_set)
+{
+	int	i;
+
+	if (pipe_set == NULL || pipe_set->pipes == NULL)
+        return;
+	while (i < pipe_set->amount)
 	{
-		close(pipe_fd[1]);
-		bytesread = 1;
-		while(bytesread > 0)
-		{
-			bytesread = read(pipe_fd[0], buf, 355);
-			printf("bytesread: %d\n", bytesread);
-			buf[bytesread] = '\0';
-			printf("ok: %s ok\n", buf);
-		}
+		close(pipe_set->pipes[i][0]);
+		close(pipe_set->pipes[i][1]);
 	}
+	free(pipe_set->pipes);
+	pipe_set->amount = 0;
+	pipe_set->pipes = NULL;
+}
+
+int	create_pipes(t_pipe_set *pipe_set, int argc, char **argv)
+{
+	int i;
+	
+	if (ft_strcmp(argv[1], "here_doc") == 0)
+		pipe_set->amount = argc -3;
+	else
+		pipe_set->amount = argc -2;
+	pipe_set->pipes = ft_calloc(pipe_set->amount, sizeof(t_pipe));
+	i = 0;
+	while (i < pipe_set->amount)
+	{
+		if (pipe(pipe_set->pipes[i]) == -1)
+		{
+			//LANZAR MENSAJE ERROR
+			free_pipes(pipe_set);
+			return (-1);
+		}
+		return (0);
+	}
+
+}
+
+io_
+
+int	main(int argc, char **argv, char **envp)
+{
+	t_pipe_set	*pipe_set;
+
+	create_pipes(pipe_set, argc, argv); 
+
+	
+	close(STDIN_FILENO);
+	dup2(fd, STDIN_FILENO);
+	close(fd);
+	create_child();
+		close(pipe_fd[1]);
 	return(0);
 }
