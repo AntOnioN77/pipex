@@ -35,4 +35,5 @@ typedef struct s_pipe_set
 {
 	t_pipe *pipes;
 	int		amount;
+	int		current;
 }	t_pipe_set;

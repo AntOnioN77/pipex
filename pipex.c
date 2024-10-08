@@ -134,6 +134,8 @@ int	create_pipes(t_pipe_set *pipe_set, int argc, char **argv)
 	else
 		pipe_set->amount = argc -2;
 	pipe_set->pipes = ft_calloc(pipe_set->amount, sizeof(t_pipe));
+	if (pipe_set->pipes == NULL)
+		return (0);
 	i = 0;
 	while (i < pipe_set->amount)
 	{
@@ -148,7 +150,15 @@ int	create_pipes(t_pipe_set *pipe_set, int argc, char **argv)
 
 }
 
-io_
+int	canalize_io(t_pipe_set *pipe_set, char **argv)
+{
+	int	tmp_fd;
+
+	open("here_doc", O_TMPFILE)
+	if (ft_strcmp(argv[1],"here_doc") == 0)
+		dup2(pipe_set->pipes[0][0]);
+
+}
 
 int	main(int argc, char **argv, char **envp)
 {
