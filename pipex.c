@@ -94,15 +94,24 @@ int	exec_cmd(int narg, char **argv, char **envp)
 	return (1);
 }
 
-void create_child(t_pipe pipe_fd, int narg, char **argv, char **envp)
+int create_child(t_pipe pipe_fd, int narg, char **argv, char **envp)
 {
-	int	pid;
-	pid = fork();
-	printf("%d", pid);
-	if (pid == 0)
+	int	aux;
+
+	aux = fork();
+	if (aux == -1)
 	{
-		printf("Hijo narg:%d ready!!\n", narg);
-		dup2(pipe_fd[1], STDOUT_FILENO);
+		perror("fork error");
+		return (1);
+	}
+	if (aux == 0)
+	{
+		aux = dup2(pipe_fd[1], STDOUT_FILENO);
+		if(aux == -1)
+		{
+			perror("dup2 error");
+			exit(1);
+		}
 		close(pipe_fd[0]);
 		close(pipe_fd[1]);
 		exec_cmd(narg, argv, envp);
@@ -150,6 +159,7 @@ int	create_pipes(t_pipe_set *pipe_set, int argc, char **argv)
 
 }
 
+/*
 int	canalize_io(t_pipe_set *pipe_set, char **argv)
 {
 	int	tmp_fd;
@@ -157,6 +167,14 @@ int	canalize_io(t_pipe_set *pipe_set, char **argv)
 	open("here_doc", O_TMPFILE)
 	if (ft_strcmp(argv[1],"here_doc") == 0)
 		dup2(pipe_set->pipes[0][0]);
+
+}
+*/
+
+int	canalize_cmd(t_pipe_set pipe_set, char **argv, char **envp)
+{
+	//create _child()
+	wihle ()
 
 }
 
