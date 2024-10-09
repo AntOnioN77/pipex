@@ -16,8 +16,8 @@ int main(int argc, char **argv)
 
 	buff_a[1] = '\0';
 	buff_b[1] = '\0';
-	read(STDIN_FILENO, buff_a[0], 1);
-	read(STDIN_FILENO, buff_b[0], 1);
+	read(STDIN_FILENO, &buff_a, 1);
+	read(STDIN_FILENO, buff_b, 1);
 
 	num_a = ft_atoi(buff_a);
 	num_b = ft_atoi(buff_b);

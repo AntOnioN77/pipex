@@ -6,7 +6,7 @@
 /*   By: antofern <antofern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/11 21:12:18 by antofern          #+#    #+#             */
-/*   Updated: 2024/10/09 14:37:53 by antofern         ###   ########.fr       */
+/*   Updated: 2024/10/09 16:45:12 by antofern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,7 +130,15 @@ int create_child(t_pipe_set *pipe_set, int narg, char **argv, char **envp)
 				dup2_warp(aux, STDIN_FILENO);
 			}
 			else
-				dup2_warp(argv[1], STDIN_FILENO);
+			{
+				aux = open(argv[1], O_RDONLY);
+				dup2_warp(aux, STDIN_FILENO);
+			}
+		}
+		else
+		{
+			aux = pipe_set->pipes[pipe_set->current -1][0];
+			dup2_warp(aux, STDIN_FILENO);
 		}
 		
 		if (dup2(pipe_set->pipes[pipe_set->current][1], STDOUT_FILENO) == -1)
@@ -140,6 +148,7 @@ int create_child(t_pipe_set *pipe_set, int narg, char **argv, char **envp)
 		}
 		close(pipe_set->pipes[pipe_set->current][0]);
 		close(pipe_set->pipes[pipe_set->current][1]);
+		pipe_set->current++;
 		exec_cmd(narg, argv, envp);
 		return (1); //solo se ejecuta si execve falla;
 	}
@@ -165,6 +174,7 @@ int	create_pipes(t_pipe_set *pipe_set, int argc, char **argv)
 {
 	int i;
 	
+	pipe_set->current = 0;
 	if (ft_strcmp(argv[1], "here_doc") == 0)
 		pipe_set->amount = argc -3;
 	else
@@ -208,13 +218,17 @@ int	canalize_cmd(t_pipe_set pipe_set, char **argv, char **envp)
 int	main(int argc, char **argv, char **envp)
 {
 	t_pipe_set	*pipe_set;
+	int	narg;
 
 	create_pipes(pipe_set, argc, argv); 
-
+	narg = 2;
+	if (ft_strcmp(argv[1], "here_doc") == 0)
+		narg++;
 	while (pipe_set->current < pipe_set->amount) //current empieza en 0 entonces while debe terminar en (amount -1)
 	{
 			create_child(pipe_set, narg, argv, envp);
 			close(pipe_set->pipes[pipe_set->current][1]);
+			narg++;
 	}
 	return(0);
 }
