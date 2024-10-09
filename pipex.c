@@ -3,21 +3,23 @@
 /*                                                        :::      ::::::::   */
 /*   pipex.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: antofern <antofern@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: antofern <antofern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/11 21:12:18 by antofern          #+#    #+#             */
-/*   Updated: 2024/10/04 17:39:19 by antofern         ###   ########.fr       */
+/*   Updated: 2024/10/09 14:37:53 by antofern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#define _GNU_SOURCE
 #include <errno.h>
 #include "pipex.h"
 #include "libft/headers/libft.h"
 #include <assert.h>
 #include <stdio.h>
-#include <unistd.h>
 #include <fcntl.h>
- #include <sys/wait.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 //Retorna un array de strings con los directorios de la variable
 //de entorno PATH
@@ -94,7 +96,21 @@ int	exec_cmd(int narg, char **argv, char **envp)
 	return (1);
 }
 
-int create_child(t_pipe pipe_fd, int narg, char **argv, char **envp)
+int	get_current(t_pipe_set  *pipe_set)
+{
+	return (pipe_set->current);
+}
+
+void	dup2_warp(int new_fd, int old_fd)
+{
+	if (dup2(new_fd, old_fd) == -1)
+	{
+		perror("dup2 error");
+		exit(1);
+	}
+}
+
+int create_child(t_pipe_set *pipe_set, int narg, char **argv, char **envp)
 {
 	int	aux;
 
@@ -106,15 +122,26 @@ int create_child(t_pipe pipe_fd, int narg, char **argv, char **envp)
 	}
 	if (aux == 0)
 	{
-		aux = dup2(pipe_fd[1], STDOUT_FILENO);
-		if(aux == -1)
+		if(pipe_set->current == 0)
+		{
+			if (argv[1] == "here_doc")
+			{
+				aux = open(".", O_TMPFILE | S_IRWXU | S_IRWXG);
+				dup2_warp(aux, STDIN_FILENO);
+			}
+			else
+				dup2_warp(argv[1], STDIN_FILENO);
+		}
+		
+		if (dup2(pipe_set->pipes[pipe_set->current][1], STDOUT_FILENO) == -1)
 		{
 			perror("dup2 error");
 			exit(1);
 		}
-		close(pipe_fd[0]);
-		close(pipe_fd[1]);
+		close(pipe_set->pipes[pipe_set->current][0]);
+		close(pipe_set->pipes[pipe_set->current][1]);
 		exec_cmd(narg, argv, envp);
+		return (1); //solo se ejecuta si execve falla;
 	}
 }
 
@@ -184,11 +211,10 @@ int	main(int argc, char **argv, char **envp)
 
 	create_pipes(pipe_set, argc, argv); 
 
-	
-	close(STDIN_FILENO);
-	dup2(fd, STDIN_FILENO);
-	close(fd);
-	create_child();
-		close(pipe_fd[1]);
+	while (pipe_set->current < pipe_set->amount) //current empieza en 0 entonces while debe terminar en (amount -1)
+	{
+			create_child(pipe_set, narg, argv, envp);
+			close(pipe_set->pipes[pipe_set->current][1]);
+	}
 	return(0);
 }
