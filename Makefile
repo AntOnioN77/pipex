@@ -6,7 +6,7 @@ DBGFLAGS = -g3
 LDFLAGS = -L ./libft -lft
 SOURCES = pipex.c
 OBJECTS = $(SOURCES:.c=.o)
-HEADERS = libft/headers/libft.h libft/headers/ring.h circular_array.h
+HEADERS = libft/headers/libft.h
 
 all: $(NAME)
 debug: CFLAGS += $(DBGFLAGS)
@@ -16,7 +16,7 @@ $(NAME): libft/libft.a $(OBJECTS) $(HEADERS)
 libft/libft.a:
 	make extra -C libft
 %.o: %.c $(HEADERS)
-	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@ $(LDFLAGS)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 .PHONY: clean fclean all
 clean:
 	rm -f $(OBJECTS)

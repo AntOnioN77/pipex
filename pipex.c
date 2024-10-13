@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipex.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: antofern <antofern@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: antofern <antofern@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/11 21:12:18 by antofern          #+#    #+#             */
-/*   Updated: 2024/10/11 15:37:07 by antofern         ###   ########.fr       */
+/*   Updated: 2024/10/13 21:04:28 by antofern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,7 @@ char	*find_path(char **envp, char *command)
 		if(access(pathname, X_OK) == 0)
 			return(pathname);
 	}
-	errno = ENOENT;
+	errno = ENOENT;// posiblemente prohibido
 	return (NULL);
 }
 
@@ -102,11 +102,10 @@ int	get_current(t_pipe_set  *pipe_set)
 	return (pipe_set->current);
 }
 
-void	dup2_warp(int new_fd, int old_fd)
+void	dup2_warp(int old_fd, int new_fd)
 {
-printf("line 108 new_fd==%d\n", new_fd);
-fflush(stdout);
-	if (dup2(new_fd, old_fd) == -1)
+
+	if (dup2(old_fd, new_fd) == -1)
 	{
 		perror("dup2 error");
 		exit(1);
@@ -127,6 +126,7 @@ int create_child(t_pipe_set *pipe_set, int narg, char **argv, char **envp)
 	int	aux;
 
 	aux = fork();
+	close(pipe_set->pipes[pipe_set->current][0]);
 	if (aux == -1)
 	{
 		perror("fork error");
@@ -134,43 +134,54 @@ int create_child(t_pipe_set *pipe_set, int narg, char **argv, char **envp)
 	}
 	if (aux == 0)
 	{
-printf("line 137 current==%d-----------------------\n", pipe_set->current);
+printf("136---child says:\n");
 fflush(stdout);
 		if(pipe_set->current == 0)
 		{
+printf("140 primera iteracion.\n");
+fflush(stdout);
 			if (ft_strcmp(argv[1], "here_doc") == 0)
 			{
-				aux = open("/tmp", O_TMPFILE | O_RDWR, S_IRUSR | S_IWUSR);
-printf("line 144 aux==%d\n", aux);
+printf("144 abriendo: here_doc\n");
 fflush(stdout);
+				aux = open("/tmp", O_TMPFILE | O_RDWR, S_IRUSR | S_IWUSR);
+
 				dup2_warp(aux, STDIN_FILENO);
 			}
 			else
 			{
+printf("153 abriendo %s\n", argv[1]);
+fflush(stdout);
 				aux = open(argv[1], O_RDONLY);
-perror("open error: ");
-printf("line 152 aux==%d\n", aux);
+printf("156 duplicando %s en stdin\n", argv[1]);
 fflush(stdout);
 				dup2_warp(aux, STDIN_FILENO);
 			}
 		}
 		else
 		{
-			aux = pipe_set->pipes[pipe_set->current -1][0];
-printf("line 161 aux==%d current== %d\n", aux, pipe_set->current);
+printf("162 pipe_current: %d duplicando STDIN(%d) en fd%d \n", pipe_set->current, STDIN_FILENO, pipe_set->pipes[pipe_set->current -1][0]);
 fflush(stdout);
-			dup2_warp(aux, STDIN_FILENO);
+			aux = pipe_set->pipes[pipe_set->current -1][0];
+			dup2_warp(STDIN_FILENO, aux);
 		}
-		if (pipe_set->current != pipe_set->amount)
+		if ((pipe_set->current + 1) < pipe_set->amount)//posiblemente siempre se cumple
 		{
+printf("amount%d \n", pipe_set->amount);
+fflush(stdout);
+printf("169 duplicando extremo de escritura del pipe current(%d) (fd%d)\n", pipe_set->pipes[pipe_set->current][1], pipe_set->pipes[pipe_set->current][1]);
+fflush(stdout);
 			dup2_warp(pipe_set->pipes[pipe_set->current][1], STDOUT_FILENO);
-			close_both(pipe_set->pipes[pipe_set->current]);
+//			close_both(pipe_set->pipes[pipe_set->current]);
+			close(pipe_set->pipes[pipe_set->current][1]);
 		}
+		perror("175");
 		exec_cmd(narg, argv, envp);
+		perror("177");
 		return (1); //solo se ejecuta si execve falla;
 	}
 	pipe_set->current++;
-	waitpid(aux, NULL, 0);
+waitpid(aux, NULL, 0);// solo usar en depuracion
 	return (0);
 }
 
@@ -197,9 +208,9 @@ int	create_pipes(t_pipe_set *pipe_set, int argc, char **argv)
 	int	amount;
 	
 	if (ft_strcmp(argv[1], "here_doc") == 0)
-		amount = argc -3;
+		amount = argc -4;
 	else
-		amount = argc -2;
+		amount = argc -3;
 	pipe_set->pipes = ft_calloc(amount, sizeof(t_pipe));
 	if (pipe_set->pipes == NULL)
 		return (-1);
@@ -240,8 +251,12 @@ int	main(int argc, char **argv, char **envp)
 	narg = 2;
 	if (ft_strcmp(argv[1], "here_doc") == 0)
 		narg++;
-	while (pipe_set.current <= pipe_set.amount)
+	int outfile = open(argv[argc - 1], O_WRONLY); //DE PRUEBA //falta O_CREAT...
+	dup2_warp(outfile, STDOUT_FILENO);
+	while ((pipe_set.current) < pipe_set.amount)
 	{											// current se incrementa dentro de create_child
+printf("238 create_child\n");
+fflush(stdout);
 			if (create_child(&pipe_set, narg, argv, envp) != 0)
 			{
 				perror("create_child error");// cambiar por printf, la variable errno del proceso hijo no es accesible desde aquí 
