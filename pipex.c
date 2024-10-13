@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipex.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: antofern <antofern@student.42.fr>          +#+  +:+       +#+        */
+/*   By: antofern <antofern@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/11 21:12:18 by antofern          #+#    #+#             */
-/*   Updated: 2024/10/09 16:45:12 by antofern         ###   ########.fr       */
+/*   Updated: 2024/10/11 15:37:07 by antofern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 
 //Retorna un array de strings con los directorios de la variable
 //de entorno PATH
@@ -84,7 +85,7 @@ int	exec_cmd(int narg, char **argv, char **envp)
 	char **cmdflags;
 
 	cmdflags = ft_split(argv[narg], ' ');
-	if (ft_split == NULL)
+	if (cmdflags == NULL)
 		return (1);
 	pathname = find_path(envp, cmdflags[0]);
 	if (pathname == NULL)
@@ -103,9 +104,20 @@ int	get_current(t_pipe_set  *pipe_set)
 
 void	dup2_warp(int new_fd, int old_fd)
 {
+printf("line 108 new_fd==%d\n", new_fd);
+fflush(stdout);
 	if (dup2(new_fd, old_fd) == -1)
 	{
 		perror("dup2 error");
+		exit(1);
+	}
+}
+
+void	close_both(t_pipe pipe)
+{
+	if (close(pipe[0]) == -1 || close(pipe[1]) == -1)
+	{
+		perror("close error");
 		exit(1);
 	}
 }
@@ -122,42 +134,51 @@ int create_child(t_pipe_set *pipe_set, int narg, char **argv, char **envp)
 	}
 	if (aux == 0)
 	{
+printf("line 137 current==%d-----------------------\n", pipe_set->current);
+fflush(stdout);
 		if(pipe_set->current == 0)
 		{
-			if (argv[1] == "here_doc")
+			if (ft_strcmp(argv[1], "here_doc") == 0)
 			{
-				aux = open(".", O_TMPFILE | S_IRWXU | S_IRWXG);
+				aux = open("/tmp", O_TMPFILE | O_RDWR, S_IRUSR | S_IWUSR);
+printf("line 144 aux==%d\n", aux);
+fflush(stdout);
 				dup2_warp(aux, STDIN_FILENO);
 			}
 			else
 			{
 				aux = open(argv[1], O_RDONLY);
+perror("open error: ");
+printf("line 152 aux==%d\n", aux);
+fflush(stdout);
 				dup2_warp(aux, STDIN_FILENO);
 			}
 		}
 		else
 		{
 			aux = pipe_set->pipes[pipe_set->current -1][0];
+printf("line 161 aux==%d current== %d\n", aux, pipe_set->current);
+fflush(stdout);
 			dup2_warp(aux, STDIN_FILENO);
 		}
-		
-		if (dup2(pipe_set->pipes[pipe_set->current][1], STDOUT_FILENO) == -1)
+		if (pipe_set->current != pipe_set->amount)
 		{
-			perror("dup2 error");
-			exit(1);
+			dup2_warp(pipe_set->pipes[pipe_set->current][1], STDOUT_FILENO);
+			close_both(pipe_set->pipes[pipe_set->current]);
 		}
-		close(pipe_set->pipes[pipe_set->current][0]);
-		close(pipe_set->pipes[pipe_set->current][1]);
-		pipe_set->current++;
 		exec_cmd(narg, argv, envp);
 		return (1); //solo se ejecuta si execve falla;
 	}
+	pipe_set->current++;
+	waitpid(aux, NULL, 0);
+	return (0);
 }
 
 void	free_pipes(t_pipe_set *pipe_set)
 {
 	int	i;
 
+	i = 0;
 	if (pipe_set == NULL || pipe_set->pipes == NULL)
         return;
 	while (i < pipe_set->amount)
@@ -173,15 +194,17 @@ void	free_pipes(t_pipe_set *pipe_set)
 int	create_pipes(t_pipe_set *pipe_set, int argc, char **argv)
 {
 	int i;
+	int	amount;
 	
-	pipe_set->current = 0;
 	if (ft_strcmp(argv[1], "here_doc") == 0)
-		pipe_set->amount = argc -3;
+		amount = argc -3;
 	else
-		pipe_set->amount = argc -2;
-	pipe_set->pipes = ft_calloc(pipe_set->amount, sizeof(t_pipe));
+		amount = argc -2;
+	pipe_set->pipes = ft_calloc(amount, sizeof(t_pipe));
 	if (pipe_set->pipes == NULL)
-		return (0);
+		return (-1);
+	pipe_set->amount = amount;
+	pipe_set->current = 0;
 	i = 0;
 	while (i < pipe_set->amount)
 	{
@@ -191,9 +214,9 @@ int	create_pipes(t_pipe_set *pipe_set, int argc, char **argv)
 			free_pipes(pipe_set);
 			return (-1);
 		}
-		return (0);
+		i++;
 	}
-
+	return (0);
 }
 
 /*
@@ -208,26 +231,23 @@ int	canalize_io(t_pipe_set *pipe_set, char **argv)
 }
 */
 
-int	canalize_cmd(t_pipe_set pipe_set, char **argv, char **envp)
-{
-	//create _child()
-	wihle ()
-
-}
-
 int	main(int argc, char **argv, char **envp)
 {
-	t_pipe_set	*pipe_set;
+	t_pipe_set	pipe_set;
 	int	narg;
 
-	create_pipes(pipe_set, argc, argv); 
+	create_pipes(&pipe_set, argc, argv);
 	narg = 2;
 	if (ft_strcmp(argv[1], "here_doc") == 0)
 		narg++;
-	while (pipe_set->current < pipe_set->amount) //current empieza en 0 entonces while debe terminar en (amount -1)
-	{
-			create_child(pipe_set, narg, argv, envp);
-			close(pipe_set->pipes[pipe_set->current][1]);
+	while (pipe_set.current <= pipe_set.amount)
+	{											// current se incrementa dentro de create_child
+			if (create_child(&pipe_set, narg, argv, envp) != 0)
+			{
+				perror("create_child error");// cambiar por printf, la variable errno del proceso hijo no es accesible desde aquí 
+				return (1);
+			}
+			close(pipe_set.pipes[pipe_set.current][1]);
 			narg++;
 	}
 	return(0);
