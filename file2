@@ -1,1 +1,11 @@
-
+238 create_child
+136---child says:
+140 primera iteracion.
+153 abriendo file1
+156 duplicando file1 en stdin
+amount2 
+169 duplicando extremo de escritura del pipe current(4) (fd4)
+238 create_child
+136---child says:
+162 pipe_current: 1 duplicando STDIN(0) en fd3 
+      0       0       0

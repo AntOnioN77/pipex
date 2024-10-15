@@ -10,7 +10,7 @@ HEADERS = libft/headers/libft.h
 
 all: $(NAME)
 debug: CFLAGS += $(DBGFLAGS)
-debug: fclean all
+debug: clean all
 $(NAME): libft/libft.a $(OBJECTS) $(HEADERS)
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(OBJECTS) $(LDFLAGS) -o $(NAME)
 libft/libft.a:
