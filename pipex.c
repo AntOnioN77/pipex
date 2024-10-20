@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipex.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: antofern <antofern@student.42.fr>          +#+  +:+       +#+        */
+/*   By: antofern <antofern@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/11 21:12:18 by antofern          #+#    #+#             */
-/*   Updated: 2024/10/13 21:04:28 by antofern         ###   ########.fr       */
+/*   Updated: 2024/10/20 21:34:15 by antofern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,47 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
+
+
+/* 	-FUNCION DE prueba. separar del codigo fuente original y archivar en libreria "test.h"
+	-Imprime contenido del archivo asociado a <fd>, maximo <sample_len> 99 */
+void	test_sample_fd(int fd, char *expected, int sample_len)
+{
+	char	test[100];
+	off_t	original_offset;
+	ssize_t	bytes_read;
+
+    if (sample_len >= 100)
+	{
+        fprintf(stderr, "test_sample_fd Error: el tamaño de sample_len es superior al limite para esta función (99)\n");
+        return;
+    }
+	if (fd < 0)
+	{
+		perror("test_sample_fd, valor en fd no valido ");
+		fflush(stderr);
+        return;
+	}
+	original_offset = lseek(fd, 0, SEEK_CUR);
+    if (original_offset == -1)
+	{
+        perror("test_sample_fd, error al obtener el offset inicial");
+		fflush(stderr);
+        return;
+    }
+	test[sample_len] = '\0';
+
+    bytes_read = read(fd, test, sample_len);
+    if (bytes_read == -1)
+	{
+        perror("Error al leer el file descriptor");
+        return;
+    }
+	lseek(fd, original_offset, SEEK_SET);
+	printf("In fd:%d EXPECTED:\n %s \n YOURS:\n %s\n", STDIN_FILENO, expected, test);
+	fflush(stdout);
+
+}
 
 //Retorna un array de strings con los directorios de la variable
 //de entorno PATH
@@ -126,7 +167,6 @@ int create_child(t_pipe_set *pipe_set, int narg, char **argv, char **envp)
 	int	aux;
 
 	aux = fork();
-	close(pipe_set->pipes[pipe_set->current][0]);
 	if (aux == -1)
 	{
 		perror("fork error");
@@ -147,6 +187,7 @@ fflush(stdout);
 				aux = open("/tmp", O_TMPFILE | O_RDWR, S_IRUSR | S_IWUSR);
 
 				dup2_warp(aux, STDIN_FILENO);
+//test_sample_fd(STDIN_FILENO, "contenido de here_doc", 3);
 			}
 			else
 			{
@@ -156,6 +197,7 @@ fflush(stdout);
 printf("156 duplicando %s en stdin\n", argv[1]);
 fflush(stdout);
 				dup2_warp(aux, STDIN_FILENO);
+//test_sample_fd(STDIN_FILENO, "contenido de file1", 3);
 			}
 		}
 		else
@@ -163,25 +205,28 @@ fflush(stdout);
 printf("162 pipe_current: %d duplicando STDIN(%d) en fd%d \n", pipe_set->current, STDIN_FILENO, pipe_set->pipes[pipe_set->current -1][0]);
 fflush(stdout);
 			aux = pipe_set->pipes[pipe_set->current -1][0];
-			dup2_warp(STDIN_FILENO, aux);
+			dup2_warp(aux, STDIN_FILENO);
+//test_sample_fd(STDIN_FILENO, "retorno de wc", 3);
 		}
-		if ((pipe_set->current + 1) < pipe_set->amount)//posiblemente siempre se cumple
+		if (pipe_set->current < pipe_set->amount - 1)
 		{
 printf("amount%d \n", pipe_set->amount);
 fflush(stdout);
 printf("169 duplicando extremo de escritura del pipe current(%d) (fd%d)\n", pipe_set->pipes[pipe_set->current][1], pipe_set->pipes[pipe_set->current][1]);
 fflush(stdout);
 			dup2_warp(pipe_set->pipes[pipe_set->current][1], STDOUT_FILENO);
-//			close_both(pipe_set->pipes[pipe_set->current]);
-			close(pipe_set->pipes[pipe_set->current][1]);
 		}
 		perror("175");
+		for (int i = 0; i < pipe_set->amount; i++)
+        {
+            close(pipe_set->pipes[i][0]);
+            close(pipe_set->pipes[i][1]);
+        }
 		exec_cmd(narg, argv, envp);
 		perror("177");
 		return (1); //solo se ejecuta si execve falla;
 	}
 	pipe_set->current++;
-waitpid(aux, NULL, 0);// solo usar en depuracion
 	return (0);
 }
 
@@ -262,8 +307,12 @@ fflush(stdout);
 				perror("create_child error");// cambiar por printf, la variable errno del proceso hijo no es accesible desde aquí 
 				return (1);
 			}
-			close(pipe_set.pipes[pipe_set.current][1]);
 			narg++;
+	}
+	int status;
+	for (int i = 0; i < pipe_set.amount; i++)
+	{
+		wait(&status);
 	}
 	return(0);
 }
