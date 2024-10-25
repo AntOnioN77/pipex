@@ -6,7 +6,7 @@
 /*   By: antofern <antofern@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/11 21:12:18 by antofern          #+#    #+#             */
-/*   Updated: 2024/10/20 21:34:15 by antofern         ###   ########.fr       */
+/*   Updated: 2024/10/22 02:02:32 by antofern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
+
+#include "trace_tools/trace_tools.h"
 
 
 /* 	-FUNCION DE prueba. separar del codigo fuente original y archivar en libreria "test.h"
@@ -166,6 +168,7 @@ int create_child(t_pipe_set *pipe_set, int narg, char **argv, char **envp)
 {
 	int	aux;
 
+int id = get_id();
 	aux = fork();
 	if (aux == -1)
 	{
@@ -174,19 +177,17 @@ int create_child(t_pipe_set *pipe_set, int narg, char **argv, char **envp)
 	}
 	if (aux == 0)
 	{
-printf("136---child says:\n");
-fflush(stdout);
-		if(pipe_set->current == 0)
+log_message("INFO", "Hijo", id, -42, "Comienza proceso");
+		if (pipe_set->current == 0)
 		{
-printf("140 primera iteracion.\n");
-fflush(stdout);
+log_message("INFO", "Hijo", id, -42, "current == 0 (primer proceso hijo)");
 			if (ft_strcmp(argv[1], "here_doc") == 0)
 			{
-printf("144 abriendo: here_doc\n");
-fflush(stdout);
+log_message("INFO", "Hijo", id, -42, "abriendo HERE_DOC ...");
 				aux = open("/tmp", O_TMPFILE | O_RDWR, S_IRUSR | S_IWUSR);
 
 				dup2_warp(aux, STDIN_FILENO);
+log_message("INFO", "Hijo", id, -42, "file descriptor de here_doc duplicado en STDIN_FILENO (previo stdin queda cerrado)");
 //test_sample_fd(STDIN_FILENO, "contenido de here_doc", 3);
 			}
 			else
@@ -226,7 +227,15 @@ fflush(stdout);
 		perror("177");
 		return (1); //solo se ejecuta si execve falla;
 	}
-	pipe_set->current++;
+	else
+    {
+        if (pipe_set->current > 0)
+        {
+            close(pipe_set->pipes[pipe_set->current - 1][0]);
+            close(pipe_set->pipes[pipe_set->current - 1][1]);
+        }
+	   pipe_set->current++;
+    }
 	return (0);
 }
 
