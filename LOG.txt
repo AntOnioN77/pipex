@@ -1,0 +1,10 @@
+
+[INFO] [15:43:19] [Hijo 1] [Pipe -42] Comienza proceso
+[INFO] [15:43:19] [Hijo 1] [Pipe -42] current == 0 (primer proceso hijo)
+[INFO] [15:43:19] [Hijo 2] [Pipe -42] Comienza proceso
+[INFO] [15:44:36] [Hijo 1] [Pipe -42] Comienza proceso
+[INFO] [15:44:36] [Hijo 1] [Pipe -42] current == 0 (primer proceso hijo)
+[INFO] [15:44:36] [Hijo 2] [Pipe -42] Comienza proceso
+[INFO] [15:45:37] [Hijo 1] [Pipe -42] Comienza proceso
+[INFO] [15:45:37] [Hijo 2] [Pipe -42] Comienza proceso
+[INFO] [15:45:37] [Hijo 1] [Pipe -42] current == 0 (primer proceso hijo)
