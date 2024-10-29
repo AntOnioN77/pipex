@@ -6,7 +6,7 @@
 /*   By: antofern <antofern@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/11 21:12:18 by antofern          #+#    #+#             */
-/*   Updated: 2024/10/22 02:02:32 by antofern         ###   ########.fr       */
+/*   Updated: 2024/10/30 00:51:05 by antofern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,6 @@ void	test_sample_fd(int fd, char *expected, int sample_len)
 	lseek(fd, original_offset, SEEK_SET);
 	printf("In fd:%d EXPECTED:\n %s \n YOURS:\n %s\n", STDIN_FILENO, expected, test);
 	fflush(stdout);
-
 }
 
 //Retorna un array de strings con los directorios de la variable
@@ -85,7 +84,7 @@ char	**get_paths(char **envp)
 			break;
 		}
 	}
-	//prueba, borrar:
+	//TO DO: No solo notificar, tambien liberar lo que sea preciso
 	if (envp[i] == NULL)
 		write(1, "variable PATH no encontrada\n", 28);
 	//fin prueba
@@ -168,8 +167,10 @@ int create_child(t_pipe_set *pipe_set, int narg, char **argv, char **envp)
 {
 	int	aux;
 
-int id = get_id();
+int id = get_id();//Borrar
+LOG_MESSAGE("INFO", "Padre", id, -42, "Forking");
 	aux = fork();
+
 	if (aux == -1)
 	{
 		perror("fork error");
@@ -177,52 +178,55 @@ int id = get_id();
 	}
 	if (aux == 0)
 	{
-log_message("INFO", "Hijo", id, -42, "Comienza proceso");
+LOG_MESSAGE("INFO", "Hijo", id, -42, "Comienza proceso");
 		if (pipe_set->current == 0)
 		{
-log_message("INFO", "Hijo", id, -42, "current == 0 (primer proceso hijo)");
+LOG_MESSAGE("INFO", "Hijo", id, -42, "current == 0 (primer proceso hijo)");
 			if (ft_strcmp(argv[1], "here_doc") == 0)
 			{
-log_message("INFO", "Hijo", id, -42, "abriendo HERE_DOC ...");
+LOG_MESSAGE("INFO", "Hijo", id, -42, "abriendo HERE_DOC ...");
 				aux = open("/tmp", O_TMPFILE | O_RDWR, S_IRUSR | S_IWUSR);
-
+				ssize_t bytesread = 1;
+				char *buffer[100];
+				while (bytesread > 0)
+				{
+					bytesread = read(0, buffer, 100);
+					write(aux, buffer, bytesread);
+				}
 				dup2_warp(aux, STDIN_FILENO);
-log_message("INFO", "Hijo", id, -42, "file descriptor de here_doc duplicado en STDIN_FILENO (previo stdin queda cerrado)");
+LOG_MESSAGE("INFO", "Hijo", id, -42, "file descriptor de here_doc duplicado en STDIN_FILENO (previo stdin queda cerrado)");
 //test_sample_fd(STDIN_FILENO, "contenido de here_doc", 3);
 			}
 			else
 			{
-printf("153 abriendo %s\n", argv[1]);
-fflush(stdout);
+LOG_MESSAGE("INFO", "Hijo", id, -42, "abriendo infile");	
 				aux = open(argv[1], O_RDONLY);
-printf("156 duplicando %s en stdin\n", argv[1]);
-fflush(stdout);
+LOG_MESSAGE("INFO", "Hijo", id, -42, "Duplicando infile en stdin");
 				dup2_warp(aux, STDIN_FILENO);
 //test_sample_fd(STDIN_FILENO, "contenido de file1", 3);
 			}
 		}
 		else
 		{
-printf("162 pipe_current: %d duplicando STDIN(%d) en fd%d \n", pipe_set->current, STDIN_FILENO, pipe_set->pipes[pipe_set->current -1][0]);
-fflush(stdout);
-			aux = pipe_set->pipes[pipe_set->current -1][0];
+LOG_MESSAGE("INFO", "Hijo", id, (pipe_set->current - 1), "Duplicando STDIN en estremo de lectura");
+			aux = pipe_set->pipes[pipe_set->current - 1][0];
 			dup2_warp(aux, STDIN_FILENO);
 //test_sample_fd(STDIN_FILENO, "retorno de wc", 3);
 		}
 		if (pipe_set->current < pipe_set->amount - 1)
 		{
-printf("amount%d \n", pipe_set->amount);
-fflush(stdout);
-printf("169 duplicando extremo de escritura del pipe current(%d) (fd%d)\n", pipe_set->pipes[pipe_set->current][1], pipe_set->pipes[pipe_set->current][1]);
-fflush(stdout);
+LOG_MESSAGE("INFO", "Hijo", id, (pipe_set->current), "Duplicando estremo de escritura del pipe en stdout");
+
 			dup2_warp(pipe_set->pipes[pipe_set->current][1], STDOUT_FILENO);
 		}
-		perror("175");
-		for (int i = 0; i < pipe_set->amount; i++)
+		perror("175");//??????????????????????
+		for (int i = 0; i < pipe_set->amount; i++)//for no se puede
         {
+LOG_MESSAGE("INFO", "Hijo", id, i, "Cerrando pipe (ambos extremos)");
             close(pipe_set->pipes[i][0]);
             close(pipe_set->pipes[i][1]);
         }
+LOG_MESSAGE("INFO", argv[narg], id, -42, "ejecutando");
 		exec_cmd(narg, argv, envp);
 		perror("177");
 		return (1); //solo se ejecuta si execve falla;
@@ -231,6 +235,7 @@ fflush(stdout);
     {
         if (pipe_set->current > 0)
         {
+LOG_MESSAGE("INFO", "Padre", -42, pipe_set->current, "Cerrando pipe (ambos extremos)");
             close(pipe_set->pipes[pipe_set->current - 1][0]);
             close(pipe_set->pipes[pipe_set->current - 1][1]);
         }
@@ -305,12 +310,12 @@ int	main(int argc, char **argv, char **envp)
 	narg = 2;
 	if (ft_strcmp(argv[1], "here_doc") == 0)
 		narg++;
+LOG_MESSAGE("INFO", "Padre", -42, -42, "abriendo outfile");
 	int outfile = open(argv[argc - 1], O_WRONLY); //DE PRUEBA //falta O_CREAT...
+LOG_MESSAGE("INFO", "Padre", -42, -42, "Duplicando outfile en stdout");
 	dup2_warp(outfile, STDOUT_FILENO);
 	while ((pipe_set.current) < pipe_set.amount)
 	{											// current se incrementa dentro de create_child
-printf("238 create_child\n");
-fflush(stdout);
 			if (create_child(&pipe_set, narg, argv, envp) != 0)
 			{
 				perror("create_child error");// cambiar por printf, la variable errno del proceso hijo no es accesible desde aquí 
@@ -323,5 +328,6 @@ fflush(stdout);
 	{
 		wait(&status);
 	}
+log_end();
 	return(0);
 }

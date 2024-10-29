@@ -1,0 +1,24 @@
+total 1488
+-rwxrwxr-x 1 fibo fibo   27328 oct 28 11:15 a.out
+-rw-rw-r-- 1 fibo fibo      24 oct 19 17:27 archivo2
+-rw-rw-r-- 1 fibo fibo    2526 oct 19 17:34 create_cild_generate.c
+-rw-rw-r-- 1 fibo fibo 1060259 abr 26  2024 el_quijote.txt
+-rw-rw-r-- 1 fibo fibo      60 oct  8 14:46 entrad_usuario.c
+-rw-rw-r-- 1 fibo fibo      26 oct 28 11:15 file1
+-rw-rw-r-- 1 fibo fibo      62 oct 29 14:22 file2
+drwxrwxr-x 6 fibo fibo    4096 oct 29 14:22 libft
+-rw-rw-r-- 1 fibo fibo   63960 sep 26 12:59 libft.a
+-rw-rw-r-- 1 fibo fibo    1375 oct 29 14:24 LOG.txt
+-rw-rw-r-- 1 fibo fibo     742 oct 28 11:15 makefile
+-rw-rw-r-- 1 fibo fibo       3 oct 28 11:15 outfile
+-rwxrwxr-x 1 fibo fibo  101672 oct 29 14:22 pipex
+-rw-rw-r-- 1 fibo fibo    8510 oct 29 17:43 pipex.c
+-rw-rw-r-- 1 fibo fibo    1202 oct 10 09:56 pipex.h
+-rw-rw-r-- 1 fibo fibo  180312 oct 29 14:22 pipex.o
+-rw-rw-r-- 1 fibo fibo     164 sep 26 12:59 prueba.c
+drwxrwxr-x 2 fibo fibo    4096 oct 15 16:14 pruebas_pipex
+-rw-rw-r-- 1 fibo fibo     474 oct 15 16:14 suma.c
+-rw-rw-r-- 1 fibo fibo     249 oct 10 09:56 tareas.txt
+-rw-rw-r-- 1 fibo fibo      18 sep 26 12:59 test.sh
+drwxrwxr-x 2 fibo fibo    4096 oct 29 17:42 trace_tools
+-rw-rw-r-- 1 fibo fibo     261 sep 26 12:59 valgrind-out.txt

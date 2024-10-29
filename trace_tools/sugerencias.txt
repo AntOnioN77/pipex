@@ -1,0 +1,57 @@
+Opción 1: Uso de tee para Duplicar el Pipe
+El comando tee es útil cuando quieres redirigir la salida a varios destinos. Puedes aplicarlo en el contexto de pipes para leer el contenido sin modificar el flujo de datos original. La idea general sería:
+
+Pipe adicional: Usa un pipe adicional para actuar como intermediario.
+Proceso intermedio: Crea un proceso que lea del pipe original, utilice tee para duplicar el contenido y envíe una copia hacia la salida original y otra a algún log o archivo de monitoreo.
+Por ejemplo:
+
+c
+Copiar código
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+
+void monitor_pipe(int fd_read, int fd_write, const char *logfile) {
+    char buffer[1024];
+    ssize_t count;
+    int log_fd = open(logfile, O_WRONLY | O_CREAT | O_APPEND, 0644);
+
+    while ((count = read(fd_read, buffer, sizeof(buffer))) > 0) {
+        // Escribe en el archivo de log
+        write(log_fd, buffer, count);
+        // Pasa el contenido al siguiente pipe o stdout
+        write(fd_write, buffer, count);
+    }
+    close(log_fd);
+}
+Aquí, monitor_pipe() copia la salida a un archivo de log y luego la envía al destino original. Este enfoque tiene la ventaja de que puedes analizar el contenido en tiempo real sin interferir con la comunicación entre procesos.
+
+Opción 2: Función wrap_read() para Registrar las Lecturas
+Crear una función wrap_read() que envuelva la operación de read() es una solución más controlada. Cada vez que una lectura ocurre, puedes registrar el contenido en un archivo de log. Esto es útil si quieres hacerlo en varios puntos del código sin modificar demasiado la estructura del programa.
+
+Ejemplo de wrap_read():
+
+c
+Copiar código
+#include <unistd.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <string.h>
+
+ssize_t wrap_read(int fd, void *buf, size_t count) {
+    ssize_t bytes_read = read(fd, buf, count);
+    if (bytes_read > 0) {
+        // Abre el log y escribe los datos leídos
+        int log_fd = open("pipe_log.txt", O_WRONLY | O_CREAT | O_APPEND, 0644);
+        write(log_fd, buf, bytes_read);
+        close(log_fd);
+    }
+    return bytes_read;
+}
+Luego, puedes reemplazar tus llamadas a read(fd, buf, count); con wrap_read(fd, buf, count);.
+
+Consideraciones de cada método
+Con tee: Ideal si tienes un sistema modular en el que cada proceso tiene su propio pipe y quieres monitorear sin modificar el código de lectura/escritura en cada proceso.
+Con wrap_read(): Te permite un control más directo dentro del mismo proceso, ideal para pruebas y debugging en un código ya escrito. Además, wrap_read() es más simple de integrar, especialmente si estás controlando la comunicación de un solo proceso o quieres monitorear cada lectura de forma consistente.
+Ambas soluciones son efectivas y dependerán de qué tan granular quieres el control y de la complejidad del sistema.

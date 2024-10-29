@@ -1,10 +1,29 @@
-
-[INFO] [15:43:19] [Hijo 1] [Pipe -42] Comienza proceso
-[INFO] [15:43:19] [Hijo 1] [Pipe -42] current == 0 (primer proceso hijo)
-[INFO] [15:43:19] [Hijo 2] [Pipe -42] Comienza proceso
-[INFO] [15:44:36] [Hijo 1] [Pipe -42] Comienza proceso
-[INFO] [15:44:36] [Hijo 1] [Pipe -42] current == 0 (primer proceso hijo)
-[INFO] [15:44:36] [Hijo 2] [Pipe -42] Comienza proceso
-[INFO] [15:45:37] [Hijo 1] [Pipe -42] Comienza proceso
-[INFO] [15:45:37] [Hijo 2] [Pipe -42] Comienza proceso
-[INFO] [15:45:37] [Hijo 1] [Pipe -42] current == 0 (primer proceso hijo)
+[INFO] [00:39:26] [Padre -42] [NoPip] [pipex.c:314] abriendo outfile
+[INFO] [00:39:26] [Padre -42] [NoPip] [pipex.c:316] Duplicando outfile en stdout
+[INFO] [00:39:26] [Padre 1] [NoPip] [pipex.c:171] Forking
+[INFO] [00:39:26] [Padre 2] [NoPip] [pipex.c:171] Forking
+[INFO] [00:39:26] [Hijo 1] [NoPip] [pipex.c:181] Comienza proceso
+[INFO] [00:39:26] [Padre -42] [Pipe 1] [pipex.c:239] Cerrando pipe (ambos extremos)
+[INFO] [00:39:26] [Hijo 1] [NoPip] [pipex.c:184] current == 0 (primer proceso hijo)
+[INFO] [00:39:26] [Hijo 1] [NoPip] [pipex.c:202] abriendo infile
+[INFO] [00:39:26] [Hijo 1] [NoPip] [pipex.c:204] Duplicando infile en stdin
+[INFO] [00:39:26] [Hijo 2] [NoPip] [pipex.c:181] Comienza proceso
+[INFO] [00:39:26] [Hijo 1] [Pipe 0] [pipex.c:218] Duplicando estremo de escritura del pipe en stdout
+[INFO] [00:39:26] [Hijo 2] [Pipe 0] [pipex.c:211] Duplicando STDIN en estremo de lectura
+[INFO] [00:39:26] [Hijo 2] [Pipe 0] [pipex.c:225] Cerrando pipe (ambos extremos)
+[INFO] [00:39:26] [Hijo 1] [Pipe 0] [pipex.c:225] Cerrando pipe (ambos extremos)
+[INFO] [00:39:26] [Hijo 2] [Pipe 1] [pipex.c:225] Cerrando pipe (ambos extremos)
+[INFO] [00:39:26] [Hijo 1] [Pipe 1] [pipex.c:225] Cerrando pipe (ambos extremos)
+[INFO] [00:39:26] [wc 2] [NoPip] [pipex.c:229] ejecutando
+[INFO] [00:39:26] [wc -l 1] [NoPip] [pipex.c:229] ejecutando
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   LOG_END                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*                                                  +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*                                                     #+#    #+#             */
+/*                                                    ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */ 

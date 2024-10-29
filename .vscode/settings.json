@@ -1,7 +1,8 @@
 {
 	"files.associations": {
 		"wait.h": "c",
-		"fcntl.h": "c"
+		"fcntl.h": "c",
+		"system_error": "cpp"
 	},
 	"makefile.configureOnOpen": false
 }
