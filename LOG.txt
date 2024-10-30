@@ -27,3 +27,119 @@
 /*                                                    ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */ 
+[INFO] [00:39:27] [Padre -42] [NoPip] [pipex.c:314] abriendo outfile
+[INFO] [00:39:27] [Padre -42] [NoPip] [pipex.c:316] Duplicando outfile en stdout
+[INFO] [00:39:27] [Padre 1] [NoPip] [pipex.c:171] Forking
+[INFO] [00:39:27] [Padre 2] [NoPip] [pipex.c:171] Forking
+[INFO] [00:39:27] [Padre -42] [Pipe 1] [pipex.c:239] Cerrando pipe (ambos extremos)
+[INFO] [00:39:27] [Hijo 1] [NoPip] [pipex.c:181] Comienza proceso
+[INFO] [00:39:27] [Hijo 1] [NoPip] [pipex.c:184] current == 0 (primer proceso hijo)
+[INFO] [00:39:27] [Hijo 1] [NoPip] [pipex.c:202] abriendo infile
+[INFO] [00:39:27] [Hijo 1] [NoPip] [pipex.c:204] Duplicando infile en stdin
+[INFO] [00:39:27] [Hijo 2] [NoPip] [pipex.c:181] Comienza proceso
+[INFO] [00:39:27] [Hijo 1] [Pipe 0] [pipex.c:218] Duplicando estremo de escritura del pipe en stdout
+[INFO] [00:39:27] [Hijo 2] [Pipe 0] [pipex.c:211] Duplicando STDIN en estremo de lectura
+[INFO] [00:39:27] [Hijo 1] [Pipe 0] [pipex.c:225] Cerrando pipe (ambos extremos)
+[INFO] [00:39:27] [Hijo 2] [Pipe 0] [pipex.c:225] Cerrando pipe (ambos extremos)
+[INFO] [00:39:27] [Hijo 1] [Pipe 1] [pipex.c:225] Cerrando pipe (ambos extremos)
+[INFO] [00:39:27] [Hijo 2] [Pipe 1] [pipex.c:225] Cerrando pipe (ambos extremos)
+[INFO] [00:39:27] [/usr/bin/ls 1] [NoPip] [pipex.c:229] ejecutando
+[INFO] [00:39:27] [wc 2] [NoPip] [pipex.c:229] ejecutando
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   LOG_END                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*                                                  +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*                                                     #+#    #+#             */
+/*                                                    ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */ 
+[INFO] [00:39:50] [Padre -42] [NoPip] [pipex.c:314] abriendo outfile
+[INFO] [00:39:50] [Padre -42] [NoPip] [pipex.c:316] Duplicando outfile en stdout
+[INFO] [00:39:50] [Padre 1] [NoPip] [pipex.c:171] Forking
+[INFO] [00:39:50] [Padre 2] [NoPip] [pipex.c:171] Forking
+[INFO] [00:39:50] [Hijo 1] [NoPip] [pipex.c:181] Comienza proceso
+[INFO] [00:39:50] [Hijo 1] [NoPip] [pipex.c:184] current == 0 (primer proceso hijo)
+[INFO] [00:39:50] [Hijo 1] [NoPip] [pipex.c:202] abriendo infile
+[INFO] [00:39:50] [Padre -42] [Pipe 1] [pipex.c:239] Cerrando pipe (ambos extremos)
+[INFO] [00:39:50] [Hijo 1] [NoPip] [pipex.c:204] Duplicando infile en stdin
+[INFO] [00:39:50] [Hijo 1] [Pipe 0] [pipex.c:218] Duplicando estremo de escritura del pipe en stdout
+[INFO] [00:39:50] [Hijo 1] [Pipe 0] [pipex.c:225] Cerrando pipe (ambos extremos)
+[INFO] [00:39:50] [Hijo 1] [Pipe 1] [pipex.c:225] Cerrando pipe (ambos extremos)
+[INFO] [00:39:50] [Hijo 2] [NoPip] [pipex.c:181] Comienza proceso
+[INFO] [00:39:50] [ls 1] [NoPip] [pipex.c:229] ejecutando
+[INFO] [00:39:50] [Hijo 2] [Pipe 0] [pipex.c:211] Duplicando STDIN en estremo de lectura
+[INFO] [00:39:50] [Hijo 2] [Pipe 0] [pipex.c:225] Cerrando pipe (ambos extremos)
+[INFO] [00:39:50] [Hijo 2] [Pipe 1] [pipex.c:225] Cerrando pipe (ambos extremos)
+[INFO] [00:39:50] [wc 2] [NoPip] [pipex.c:229] ejecutando
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   LOG_END                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*                                                  +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*                                                     #+#    #+#             */
+/*                                                    ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */ 
+[INFO] [00:41:22] [Padre -42] [NoPip] [pipex.c:314] abriendo outfile
+[INFO] [00:41:22] [Padre -42] [NoPip] [pipex.c:316] Duplicando outfile en stdout
+[INFO] [00:41:22] [Padre 1] [NoPip] [pipex.c:171] Forking
+[INFO] [00:41:22] [Padre 2] [NoPip] [pipex.c:171] Forking
+[INFO] [00:41:22] [Padre -42] [Pipe 1] [pipex.c:239] Cerrando pipe (ambos extremos)
+[INFO] [00:41:22] [Hijo 1] [NoPip] [pipex.c:181] Comienza proceso
+[INFO] [00:41:22] [Hijo 1] [NoPip] [pipex.c:184] current == 0 (primer proceso hijo)
+[INFO] [00:41:22] [Hijo 1] [NoPip] [pipex.c:202] abriendo infile
+[INFO] [00:41:22] [Hijo 2] [NoPip] [pipex.c:181] Comienza proceso
+[INFO] [00:41:22] [Hijo 1] [NoPip] [pipex.c:204] Duplicando infile en stdin
+[INFO] [00:41:22] [Hijo 1] [Pipe 0] [pipex.c:218] Duplicando estremo de escritura del pipe en stdout
+[INFO] [00:41:22] [Hijo 2] [Pipe 0] [pipex.c:211] Duplicando STDIN en estremo de lectura
+[INFO] [00:41:22] [Hijo 1] [Pipe 0] [pipex.c:225] Cerrando pipe (ambos extremos)
+[INFO] [00:41:22] [Hijo 2] [Pipe 0] [pipex.c:225] Cerrando pipe (ambos extremos)
+[INFO] [00:41:22] [Hijo 1] [Pipe 1] [pipex.c:225] Cerrando pipe (ambos extremos)
+[INFO] [00:41:22] [Hijo 2] [Pipe 1] [pipex.c:225] Cerrando pipe (ambos extremos)
+[INFO] [00:41:22] [/usr/bin/ls 1] [NoPip] [pipex.c:229] ejecutando
+[INFO] [00:41:22] [wc 2] [NoPip] [pipex.c:229] ejecutando
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   LOG_END                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*                                                  +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*                                                     #+#    #+#             */
+/*                                                    ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */ 
+[INFO] [00:41:59] [Padre -42] [NoPip] [pipex.c:315] abriendo outfile
+[INFO] [00:41:59] [Padre -42] [NoPip] [pipex.c:317] Duplicando outfile en stdout
+[INFO] [00:41:59] [Padre 1] [NoPip] [pipex.c:173] Forking
+[INFO] [00:41:59] [Padre 2] [NoPip] [pipex.c:173] Forking
+[INFO] [00:41:59] [Padre -42] [Pipe 1] [pipex.c:240] Cerrando pipe (ambos extremos)
+[INFO] [00:41:59] [Hijo 1] [NoPip] [pipex.c:183] Comienza proceso
+[INFO] [00:41:59] [Hijo 1] [NoPip] [pipex.c:186] current == 0 (primer proceso hijo)
+[INFO] [00:41:59] [Hijo 1] [NoPip] [pipex.c:204] abriendo infile
+[INFO] [00:41:59] [Hijo 1] [NoPip] [pipex.c:206] Duplicando infile en stdin
+[INFO] [00:41:59] [Hijo 2] [NoPip] [pipex.c:183] Comienza proceso
+[INFO] [00:41:59] [Hijo 1] [Pipe 0] [pipex.c:220] Duplicando estremo de escritura del pipe en stdout
+[INFO] [00:41:59] [Hijo 2] [Pipe 0] [pipex.c:213] Duplicando STDIN en estremo de lectura
+[INFO] [00:41:59] [Hijo 1] [Pipe 0] [pipex.c:227] Cerrando pipe (ambos extremos)
+[INFO] [00:41:59] [Hijo 1] [Pipe 1] [pipex.c:227] Cerrando pipe (ambos extremos)
+[INFO] [00:41:59] [Hijo 2] [Pipe 0] [pipex.c:227] Cerrando pipe (ambos extremos)
+[INFO] [00:41:59] [/usr/bin/ls 1] [NoPip] [pipex.c:231] ejecutando
+[INFO] [00:41:59] [Hijo 2] [Pipe 1] [pipex.c:227] Cerrando pipe (ambos extremos)
+[INFO] [00:41:59] [wc 2] [NoPip] [pipex.c:231] ejecutando
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   LOG_END                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*                                                  +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*                                                     #+#    #+#             */
+/*                                                    ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */ 

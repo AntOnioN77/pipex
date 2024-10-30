@@ -6,7 +6,7 @@
 /*   By: antofern <antofern@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/11 21:12:18 by antofern          #+#    #+#             */
-/*   Updated: 2024/10/30 00:51:05 by antofern         ###   ########.fr       */
+/*   Updated: 2024/10/31 00:41:17 by antofern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,15 +103,17 @@ char	*find_path(char **envp, char *command)
 	if (paths == NULL)
 		return (NULL);
 	i= -1;
+	if(access(command, X_OK) == 0)
+		return(command);
 	while(paths[++i] != NULL)
 	{
 		tmp = ft_strjoin( paths[i] , "/");
 		if(!tmp)
-			return (NULL);
+			return (NULL); //liberar paths (cadena y subcadenas)
 		pathname = ft_strjoin( tmp , command);
 		free(tmp);
 		if(!pathname)
-			return (NULL);
+			return (NULL);//liberar paths (cadena y subcadenas)
 		if(access(pathname, X_OK) == 0)
 			return(pathname);
 	}
