@@ -6,7 +6,7 @@
 /*   By: antofern <antofern@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/11 21:12:18 by antofern          #+#    #+#             */
-/*   Updated: 2024/10/31 00:41:17 by antofern         ###   ########.fr       */
+/*   Updated: 2024/10/31 01:13:15 by antofern         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,10 @@ char	**get_paths(char **envp)
 	}
 	//TO DO: No solo notificar, tambien liberar lo que sea preciso
 	if (envp[i] == NULL)
+	{
+		free2(paths);
 		write(1, "variable PATH no encontrada\n", 28);
+	}
 	//fin prueba
 	return (paths);
 }
@@ -99,25 +102,35 @@ char	*find_path(char **envp, char *command)
 	char *tmp;
 	char **paths;
 
+	if(access(command, X_OK) == 0)
+		return(command);
 	paths = get_paths(envp);
 	if (paths == NULL)
 		return (NULL);
 	i= -1;
-	if(access(command, X_OK) == 0)
-		return(command);
 	while(paths[++i] != NULL)
 	{
 		tmp = ft_strjoin( paths[i] , "/");
 		if(!tmp)
-			return (NULL); //liberar paths (cadena y subcadenas)
+		{
+			free2(paths);
+			return (NULL);
+		}
 		pathname = ft_strjoin( tmp , command);
 		free(tmp);
 		if(!pathname)
-			return (NULL);//liberar paths (cadena y subcadenas)
+		{
+			free2(paths);
+			return (NULL);
+		}
 		if(access(pathname, X_OK) == 0)
+		{
+			free2(paths);
 			return(pathname);
+		}
 	}
 	errno = ENOENT;// posiblemente prohibido
+	free2(paths);
 	return (NULL);
 }
 
@@ -134,6 +147,7 @@ int	exec_cmd(int narg, char **argv, char **envp)
 	pathname = find_path(envp, cmdflags[0]);
 	if (pathname == NULL)
 	{
+		free2(cmdflags);
 		perror("");// MAL deberia ser zsh: command not found: <comando>
 		return (1);
 	}
